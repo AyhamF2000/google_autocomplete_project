@@ -14,7 +14,7 @@ def main():
 
     print(len(line_contents))
     print(len(word_mappings))
-    print(word_mappings["hello"])
+    print(word_mappings.keys())    
     print("\n\n\n\n")
     print(line_contents["refman-8.0-en.txt-148998"])
     print(line_contents["userguide.txt-36978"])

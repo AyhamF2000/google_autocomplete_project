@@ -1,4 +1,5 @@
 from data_extractor import process_files
+from word_corrector import correct_word
 import time
 
 
@@ -41,6 +42,9 @@ def main():
                 sentence += new_input
 
                 # ayham and hamza will run the check here
+                corrected_words = correct_word(sentence.strip(), word_mappings)
+                if corrected_words:
+                    print(f"Did you mean: {', '.join(corrected_words)} ?")
                 
 
         except KeyboardInterrupt:

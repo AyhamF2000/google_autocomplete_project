@@ -45,3 +45,7 @@ def process_files(root_directory):
                 print(f"Failed to process file {file_path}: {file_error}")
 
     return line_content_dict, word_addresses
+
+
+
+

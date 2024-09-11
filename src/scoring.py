@@ -25,8 +25,6 @@ def calculate_score(user_word, suggestions):
     Returns:
         set of str: The top 5 suggestions with the highest scores, ranked in descending order.
     """
-    # user_word = "hell"
-    # suggestion = "hellh"
     penalties = {"Replacing": [-5, -4, -3, -2, -1],
                  "Add_remove": [-10, -8, -6, -4, -2]}
 
@@ -49,17 +47,16 @@ def calculate_score(user_word, suggestions):
                 suggestion_letters_locations[ch] = {i}
 
         # calculate base score
-        for key, value in user_word_letters_location.items():
-            if key in suggestion_letters_locations:
+        all_letters = user_word_letters_location.keys() | suggestion_letters_locations.keys()
+        for ch in all_letters:
+            if ch in user_word_letters_location and ch in suggestion_letters_locations:
                 # add the number of matching characters multiplied
-                scoring_dict[suggestion] += len(value & suggestion_letters_locations[key])*2
+                scoring_dict[suggestion] += len(user_word_letters_location[ch] & suggestion_letters_locations[ch])*2
                 # added_removed character: penalty by place
-                scoring_dict[suggestion] += sum(penalties["Add_remove"][min(i,4)] for i in (value ^ suggestion_letters_locations[key]))
+                scoring_dict[suggestion] += sum(penalties["Add_remove"][min(i,4)] for i in (user_word_letters_location[ch] ^ suggestion_letters_locations[ch]))
 
         # characters that are only in one of the words
-        # user_word = "hell"
-        # suggestion = "hall"
-        symmetric_difference = user_word_letters_location.keys() ^ suggestion_letters_locations.keys() # {e,a}
+        symmetric_difference = user_word_letters_location.keys() ^ suggestion_letters_locations.keys() # {o}
         for ch in symmetric_difference.copy():
             if ch in user_word_letters_location:
                 index = list(user_word_letters_location[ch])[0] # 1
@@ -67,6 +64,8 @@ def calculate_score(user_word, suggestions):
                     scoring_dict[suggestion] += penalties["Replacing"][min(index,4)]
                     symmetric_difference.remove(ch)
                     symmetric_difference.remove(suggestion[index])
-
+            elif list(suggestion_letters_locations[ch])[0] >= len(user_word):
+                scoring_dict[suggestion] += penalties["Add_remove"][min(list(suggestion_letters_locations[ch])[0], 4)]
+                symmetric_difference.remove(ch)
 
     return scoring_dict

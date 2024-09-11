@@ -32,6 +32,14 @@ class TestGetCharacterPositions(unittest.TestCase):
         expected = {"hel": 2}
         self.assertEqual(result, expected)
 
+    def test_added_strange_character(self):
+        word = "hell"
+        suggestions = {"hello"}
+        result = calculate_score(word, suggestions)
+        expected = {"hello": 6}
+        self.assertEqual(result, expected)
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,7 +3,7 @@ import time
 
 
 def main():
-    root_directory = 'data\\Archive'
+    root_directory = r"C:\Users\2022\PycharmProjects\Bootcamp\Google_Autocomplete\google_autocomplete_project\data\Archive"
 
     start_time = time.time()
     # Process files and get the dictionaries

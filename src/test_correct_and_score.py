@@ -1,7 +1,6 @@
 import unittest
 from correct_and_score import connect_and_score
 
-
 class TestConnectAndScore(unittest.TestCase):
     def test_same_word(self):
         word = "hell"
@@ -67,7 +66,6 @@ class TestConnectAndScore(unittest.TestCase):
         result = connect_and_score(word, word_dict)
         expected = [("hell", 8), ("hellh", 6), ("hello", 6), ("hall", 2), ("hull", 2)]
         self.assertEqual(result, expected)
-
 
 if __name__ == '__main__':
     unittest.main()

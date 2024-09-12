@@ -49,6 +49,9 @@ def main():
                 top_5_words = connect_and_score(str(sentence), word_mappings)
                 for new_word, score in top_5_words:
                     print(f"Word: {new_word}, Score: {score}")
+                while top_5_words:
+                    print(top_5_words.pop(0))
+                
 
                 
 

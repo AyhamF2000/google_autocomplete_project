@@ -8,7 +8,7 @@ class TestGetCharacterPositions(unittest.TestCase):
         word = "hell"
         suggestions = {"hell"}
         result = calculate_score(word, suggestions)
-        expected = {"hell":8}
+        expected = {"hell": 8}
         self.assertEqual(result, expected)
 
     def test_added_character(self):
@@ -46,6 +46,12 @@ class TestGetCharacterPositions(unittest.TestCase):
         expected = {"hhll": 2}
         self.assertEqual(result, expected)
 
+    def test_all_options(self):
+        word = "hell"
+        suggestions = {"hell", "hellh", "hall", "hel", "hello", "hhll"}
+        result = calculate_score(word, suggestions)
+        expected = {"hell": 8, "hellh": 6, "hall": 2, "hel": 2, "hello": 6, "hhll": 2}
+        self.assertEqual(result, expected)
 
 
 if __name__ == '__main__':

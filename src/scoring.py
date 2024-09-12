@@ -76,24 +76,5 @@ def calculate_score(user_word, suggestions):
             else:
                 scoring_dict[suggestion] += penalties["Add_remove"][min(diff_indexes, 4)]
 
-        # # adding included in both words character
-        # for ch in all_letters:
-        #     differences = user_word_letters_location[ch] ^ suggestion_letters_locations[ch]
-        #     for diff_pos in differences:
-        #         penalty_index = min(diff_pos, 4)  # Use the position or 4 if it's beyond
-        #         scoring_dict[suggestion] += penalties["Add_remove"][penalty_index]
-
-        # # characters that are only in one of the words
-        # letters_only_in_user_words = user_word_letters_location.keys() - suggestion_letters_locations.keys()
-        # letters_only_in_suggestion = suggestion_letters_locations.keys() - user_word_letters_location.keys()
-        # for ch in letters_only_in_user_words:
-        #     index = list(user_word_letters_location[ch])[0]
-        #     if suggestion[index] in letters_only_in_suggestion:
-        #         scoring_dict[suggestion] += penalties["Replacing"][min(index, 4)]
-        #
-        # for ch in letters_only_in_suggestion:
-        #     index = list(suggestion_letters_locations[ch])[0]
-        #     if user_word[index] in letters_only_in_user_words:
-        #         scoring_dict[suggestion] += penalties["Replacing"][min(index,4)]
 
     return scoring_dict

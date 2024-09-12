@@ -28,7 +28,8 @@ def calculate_score(user_word, suggestions):
     penalties = {"Replacing": [-5, -4, -3, -2, -1],
                  "Add_remove": [-10, -8, -6, -4, -2]}
 
-    scoring_dict = {suggestion: 0 for suggestion in suggestions} # change to max heap
+    # change to max heap
+    scoring_dict = {suggestion: 0 for suggestion in suggestions}
 
     user_word_letters_location = {} # {h: {0}, e: {1}, l: {2, 3}}
 
@@ -47,25 +48,52 @@ def calculate_score(user_word, suggestions):
                 suggestion_letters_locations[ch] = {i}
 
         # calculate base score
-        all_letters = user_word_letters_location.keys() | suggestion_letters_locations.keys()
-        for ch in all_letters:
-            if ch in user_word_letters_location and ch in suggestion_letters_locations:
-                # add the number of matching characters multiplied
-                scoring_dict[suggestion] += len(user_word_letters_location[ch] & suggestion_letters_locations[ch])*2
-                # added_removed character: penalty by place
-                scoring_dict[suggestion] += sum(penalties["Add_remove"][min(i,4)] for i in (user_word_letters_location[ch] ^ suggestion_letters_locations[ch]))
+        letters_in_common = user_word_letters_location.keys() & suggestion_letters_locations.keys()
+        for ch in letters_in_common:
+            # add the number of matching characters multiplied by 2
+            scoring_dict[suggestion] += len(user_word_letters_location[ch] & suggestion_letters_locations[ch])*2
+            # remove score if there is an additional common letter in the end
+            diff_indexes = user_word_letters_location[ch] ^ suggestion_letters_locations[ch]
+            for i in diff_indexes:
+                if i >= min(len(suggestion),len(user_word)):
+                    scoring_dict[suggestion] += penalties["Add_remove"][min(i, 4)]
 
-        # characters that are only in one of the words
-        symmetric_difference = user_word_letters_location.keys() ^ suggestion_letters_locations.keys() # {o}
-        for ch in symmetric_difference.copy():
-            if ch in user_word_letters_location:
-                index = list(user_word_letters_location[ch])[0] # 1
-                if suggestion[index] in symmetric_difference: # a in {e,a} so that means a is in e place
-                    scoring_dict[suggestion] += penalties["Replacing"][min(index,4)]
-                    symmetric_difference.remove(ch)
-                    symmetric_difference.remove(suggestion[index])
-            elif list(suggestion_letters_locations[ch])[0] >= len(user_word):
-                scoring_dict[suggestion] += penalties["Add_remove"][min(list(suggestion_letters_locations[ch])[0], 4)]
-                symmetric_difference.remove(ch)
+        user_side_letters = user_word_letters_location.keys() - suggestion_letters_locations.keys()
+        suggestion_side_letters = suggestion_letters_locations.keys() - user_word_letters_location.keys()
+        for ch in user_side_letters:
+            diff_indexes = list(user_word_letters_location[ch])[0]
+            if ch != suggestion[diff_indexes]:
+                scoring_dict[suggestion] += penalties["Replacing"][min(diff_indexes, 4)]
+                if suggestion[diff_indexes] in suggestion_side_letters:
+                    suggestion_side_letters.remove(suggestion[diff_indexes])
+
+
+        for ch in suggestion_side_letters:
+            diff_indexes = list(suggestion_letters_locations[ch])[0]
+            if diff_indexes < len(user_word):
+                if ch != user_word[diff_indexes]:
+                    scoring_dict[suggestion] += penalties["Replacing"][min(diff_indexes, 4)]
+            else:
+                scoring_dict[suggestion] += penalties["Add_remove"][min(diff_indexes, 4)]
+
+        # # adding included in both words character
+        # for ch in all_letters:
+        #     differences = user_word_letters_location[ch] ^ suggestion_letters_locations[ch]
+        #     for diff_pos in differences:
+        #         penalty_index = min(diff_pos, 4)  # Use the position or 4 if it's beyond
+        #         scoring_dict[suggestion] += penalties["Add_remove"][penalty_index]
+
+        # # characters that are only in one of the words
+        # letters_only_in_user_words = user_word_letters_location.keys() - suggestion_letters_locations.keys()
+        # letters_only_in_suggestion = suggestion_letters_locations.keys() - user_word_letters_location.keys()
+        # for ch in letters_only_in_user_words:
+        #     index = list(user_word_letters_location[ch])[0]
+        #     if suggestion[index] in letters_only_in_suggestion:
+        #         scoring_dict[suggestion] += penalties["Replacing"][min(index, 4)]
+        #
+        # for ch in letters_only_in_suggestion:
+        #     index = list(suggestion_letters_locations[ch])[0]
+        #     if user_word[index] in letters_only_in_user_words:
+        #         scoring_dict[suggestion] += penalties["Replacing"][min(index,4)]
 
     return scoring_dict

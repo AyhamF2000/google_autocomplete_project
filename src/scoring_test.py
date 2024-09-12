@@ -39,6 +39,13 @@ class TestGetCharacterPositions(unittest.TestCase):
         expected = {"hello": 6}
         self.assertEqual(result, expected)
 
+    def test_switched_with_existing_character(self):
+        word = "hell"
+        suggestions = {"hhll"}
+        result = calculate_score(word, suggestions)
+        expected = {"hhll": 2}
+        self.assertEqual(result, expected)
+
 
 
 if __name__ == '__main__':

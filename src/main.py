@@ -1,6 +1,6 @@
 from data_extractor import process_files
 import time
-
+from scoring import calculate_score
 
 def main():
     root_directory = r"C:\Users\2022\PycharmProjects\Bootcamp\Google_Autocomplete\google_autocomplete_project\data\Archive"
@@ -41,7 +41,7 @@ def main():
                 sentence += new_input
 
                 # ayham and hamza will run the check here
-                
+
 
         except KeyboardInterrupt:
             # Exit loop on Ctrl+C

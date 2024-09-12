@@ -78,3 +78,7 @@ def calculate_score(user_word, suggestions):
 
 
     return scoring_dict
+
+def top_5(user_word, suggestions):
+    scoring_dict = calculate_score(user_word, suggestions)
+    return dict(sorted(scoring_dict.items(), key=lambda item: item[1], reverse=True)[:5])

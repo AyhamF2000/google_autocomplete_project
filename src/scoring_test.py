@@ -1,9 +1,9 @@
 import unittest
 
-from google_autocomplete_project.src.scoring import calculate_score
+from google_autocomplete_project.src.scoring import calculate_score, top_5
 
 
-class TestGetCharacterPositions(unittest.TestCase):
+class TestCalculateScore(unittest.TestCase):
     def test_same_word(self):
         word = "hell"
         suggestions = {"hell"}
@@ -51,6 +51,28 @@ class TestGetCharacterPositions(unittest.TestCase):
         suggestions = {"hell", "hellh", "hall", "hel", "hello", "hhll"}
         result = calculate_score(word, suggestions)
         expected = {"hell": 8, "hellh": 6, "hall": 2, "hel": 2, "hello": 6, "hhll": 2}
+        self.assertEqual(result, expected)
+
+class TestTop5(unittest.TestCase):
+    def test_top_5_suggestions(self):
+        user_word = "hell"
+        suggestions = {"hell", "hello", "hel", "hall", "hellh"}
+        result = top_5(user_word, suggestions)
+        expected = {"hell": 8, "hello": 6, "hellh": 6, "hall": 2, "hel": 2}
+        self.assertEqual(result, expected)
+
+    def test_less_than_5_suggestions(self):
+        user_word = "hell"
+        suggestions = {"hell", "hello", "hel"}
+        result = top_5(user_word, suggestions)
+        expected = {"hell": 8, "hello": 6, "hel": 2}
+        self.assertEqual(result, expected)
+
+    def test_empty_suggestions(self):
+        user_word = "hell"
+        suggestions = set()
+        result = top_5(user_word, suggestions)
+        expected = {}
         self.assertEqual(result, expected)
 
 

@@ -2,10 +2,10 @@ from data_extractor import process_files
 from word_corrector import correct_word
 from correct_and_score import connect_and_score
 import time
-
+from scoring import calculate_score
 
 def main():
-    root_directory = 'data\\Archive'
+    root_directory = r"C:\Users\2022\PycharmProjects\Bootcamp\Google_Autocomplete\google_autocomplete_project\data\Archive"
 
     start_time = time.time()
     # Process files and get the dictionaries
@@ -43,6 +43,7 @@ def main():
                 sentence += new_input
 
                 # ayham and hamza will run the check here
+
                 # corrected_words = correct_word(sentence.strip(), word_mappings)
                 # if corrected_words:
                 #     print(f"Did you mean: {', '.join(corrected_words)} ?")
@@ -51,8 +52,6 @@ def main():
                     print(f"Word: {new_word}, Score: {score}")
                 while top_5_words:
                     print(top_5_words.pop(0))
-                
-
                 
 
         except KeyboardInterrupt:

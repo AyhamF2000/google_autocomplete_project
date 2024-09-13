@@ -1,4 +1,6 @@
 from data_extractor import process_files
+from word_corrector import correct_word
+from correct_and_score import connect_and_score
 import time
 from scoring import calculate_score
 
@@ -42,6 +44,15 @@ def main():
 
                 # ayham and hamza will run the check here
 
+                # corrected_words = correct_word(sentence.strip(), word_mappings)
+                # if corrected_words:
+                #     print(f"Did you mean: {', '.join(corrected_words)} ?")
+                top_5_words = connect_and_score(str(sentence), word_mappings)
+                for new_word, score in top_5_words:
+                    print(f"Word: {new_word}, Score: {score}")
+                while top_5_words:
+                    print(top_5_words.pop(0))
+                
 
         except KeyboardInterrupt:
             # Exit loop on Ctrl+C

@@ -15,7 +15,7 @@ class AutoCompleteData:
     score: int
 
 
-def get_best_k_completions(prefix: str) -> list[AutoCompleteData]:
+def get_best_5_completions(prefix: str) -> list[AutoCompleteData]:
     """
     This function runs the optimal autocomplete algorithm to find the best k completions.
 

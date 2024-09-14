@@ -1,18 +1,18 @@
+# file: main.py
+
 import logging
 import time
 from data_extractor import process_files
-from levenstein_implementation import *
-from correct_and_score import connect_and_score
-from integration import *
-from levenstein_scoring import calculate_score
+from integration import get_best_5_completions  # Using your function
 from data_manger import DataManager
+from sentence_address_finder import find_sentence_in_common_addresses
 
 # Configure logging to log both to a file and the console
-log_file_name = "pro_name.log"
+log_file_name = "project.log"
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers= logging.FileHandler(log_file_name)
+    handlers=[logging.FileHandler(log_file_name)]
 )
 
 def main():
@@ -41,7 +41,6 @@ def main():
 
     # Initialize empty sentence input
     sentence = ''
-
     while True:
         try:
             # Get user input, handle real-time corrections
@@ -52,13 +51,44 @@ def main():
                 sentence = ''
                 logging.info("Input reset detected.")
             else:
-                # Append new input and generate top completions
-                sentence += new_input
-                top_5_words = get_best_k_completions(sentence)
+                # Split new input into words
+                new_words = new_input.strip().split()
 
-                for word, score in top_5_words:
-                    logging.info(f"Suggested word: {word}, Score: {score}")
+                # Check each word and correct only if needed using get_best_5_completions
+                corrected_words = []
+                for word in new_words:
+                    # Get the best completions (corrections) for the word
+                    top_completions = get_best_5_completions(word)
+                    
+                    if top_completions:
+                        if word in DataManager.get_word_mappings().get(len(word), {}):
+                            # Word is correct, append it as is
+                            corrected_words.append(word)
+                        else:
+                            # Try up to 5 suggestions from get_best_5_completions
+                            for suggestion in top_completions[:5]:
+                                corrected_word = suggestion.complete_sentence
+                                corrected_words.append(corrected_word)
 
+                                # Form the corrected sentence and check for matching lines
+                                temp_sentence = ' '.join(corrected_words) + ' '
+                                matching_lines = find_sentence_in_common_addresses(temp_sentence.strip())
+
+                                if matching_lines:
+                                    # If matches are found, log them and break out of the suggestion loop
+                                    for line in matching_lines:
+                                        logging.info(f"Found in line: {line}")
+                                    break
+                                
+                                # If no matches, remove the last incorrect suggestion and try the next one
+                                corrected_words.pop()
+                    else:
+                        # No suggestion, keep the original word
+                        corrected_words.append(word)
+
+                # Update the sentence with corrected words
+                sentence += ' '.join(corrected_words) + ' '
+            print(find_sentence_in_common_addresses(sentence))
         except KeyboardInterrupt:
             # Gracefully exit on Ctrl+C
             logging.info("Exiting program via keyboard interrupt.")

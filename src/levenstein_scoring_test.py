@@ -1,6 +1,6 @@
 import unittest
 
-from google_autocomplete_project.src.scoring import calculate_score, top_5
+from google_autocomplete_project.src.levenstein_scoring import calculate_score, levenstein_top_5
 
 
 class TestCalculateScore(unittest.TestCase):
@@ -57,21 +57,21 @@ class TestTop5(unittest.TestCase):
     def test_top_5_suggestions(self):
         user_word = "hell"
         suggestions = {"hell", "hello", "hel", "hall", "hellh"}
-        result = top_5(user_word, suggestions)
+        result = levenstein_top_5(user_word, suggestions)
         expected = {"hell": 8, "hello": 6, "hellh": 6, "hall": 2, "hel": 2}
         self.assertEqual(result, expected)
 
     def test_less_than_5_suggestions(self):
         user_word = "hell"
         suggestions = {"hell", "hello", "hel"}
-        result = top_5(user_word, suggestions)
+        result = levenstein_top_5(user_word, suggestions)
         expected = {"hell": 8, "hello": 6, "hel": 2}
         self.assertEqual(result, expected)
 
     def test_empty_suggestions(self):
         user_word = "hell"
         suggestions = set()
-        result = top_5(user_word, suggestions)
+        result = levenstein_top_5(user_word, suggestions)
         expected = {}
         self.assertEqual(result, expected)
 

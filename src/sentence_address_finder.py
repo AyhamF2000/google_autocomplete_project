@@ -37,6 +37,13 @@ def find_sentence_in_common_addresses(sentence: str):
 
     # Get the line contents from the DataManager
     line_contents = DataManager.get_line_contents()
-    
-    # Return the first 5 matching lines directly
-    return [line_contents[address] for address in common_addresses][:5]
+
+    # Collect up to 5 matching lines
+    result_lines = []
+    for address in common_addresses:
+        if sentence in line_contents[address]:
+            result_lines.append(line_contents[address])
+        if len(result_lines) == 5:  # Stop when we have 5 valid lines
+            break
+
+    return result_lines

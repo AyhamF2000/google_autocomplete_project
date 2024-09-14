@@ -1,6 +1,6 @@
 import unittest
 
-from google_autocomplete_project.src.levenstein_scoring import calculate_score, levenstein_top_5
+from levenstein_scoring import calculate_score, levenstein_top_5
 
 
 class TestCalculateScore(unittest.TestCase):

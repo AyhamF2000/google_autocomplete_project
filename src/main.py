@@ -1,50 +1,71 @@
+import logging
+import time
 from data_extractor import process_files
 from levenstein_implementation import *
 from correct_and_score import connect_and_score
-import time
 from integration import *
 from levenstein_scoring import calculate_score
 from data_manger import DataManager
 
+# Configure logging to log both to a file and the console
+log_file_name = "pro_name.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers= logging.FileHandler(log_file_name)
+)
+
 def main():
-    root_directory = r"C:\Users\2022\PycharmProjects\Bootcamp\Google_Autocomplete\google_autocomplete_project\data\Archive"
+    root_directory = "data/Archive"
 
     start_time = time.perf_counter()
-    # Process files and get the dictionaries
-    line_contents, word_mappings = process_files(root_directory)
+    try:
+        line_contents, word_mappings = process_files(root_directory)
+    except Exception as e:
+        logging.error(f"Error processing files from {root_directory}: {e}")
+        return
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
-    print(f"process_files: {elapsed_time} seconds to execute.")
+    logging.info(f"'process_files' completed in {elapsed_time:.4f} seconds.")
 
-    # with open("output.txt", "w") as f:
-    #     for key, value in word_mappings.items():
-    #         if 25 < key < 50:
-    #             f.write(f"{key}: {value}\n\n\n")
+    # Set data in DataManager and log execution time
+    start_time = time.perf_counter()
+    try:
+        DataManager.set_data(line_contents, word_mappings)
+    except Exception as e:
+        logging.error(f"Error setting data in DataManager: {e}")
+        return
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    logging.info(f"'set_data' completed in {elapsed_time:.4f} seconds.")
 
-    DataManager.set_data(line_contents, word_mappings)
-
-    # sentence input
+    # Initialize empty sentence input
     sentence = ''
 
     while True:
         try:
-            # Display the current input as a prompt and place the cursor at the end
+            # Get user input, handle real-time corrections
             new_input = input(sentence)
 
-            # Reset if the special character '#' is detected
+            # Check for reset command ('#' character)
             if '#' in new_input:
                 sentence = ''
+                logging.info("Input reset detected.")
             else:
-                # Update the current input to include the new input
+                # Append new input and generate top completions
                 sentence += new_input
                 top_5_words = get_best_k_completions(sentence)
-                for new_word, score in top_5_words:
-                    print(f"Word: {new_word}, Score: {score}")
-                while top_5_words:
-                    print(top_5_words.pop(0))
+
+                for word, score in top_5_words:
+                    logging.info(f"Suggested word: {word}, Score: {score}")
 
         except KeyboardInterrupt:
-            # Exit loop on Ctrl+C
+            # Gracefully exit on Ctrl+C
+            logging.info("Exiting program via keyboard interrupt.")
+            break
+        except Exception as e:
+            # Handle any unexpected errors during runtime
+            logging.error(f"Unexpected error occurred: {e}")
             break
 
 if __name__ == "__main__":

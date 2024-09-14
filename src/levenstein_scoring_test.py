@@ -53,6 +53,12 @@ class TestCalculateScore(unittest.TestCase):
         expected = {"hell": 8, "hellh": 6, "hall": 2, "hel": 2, "hello": 6, "hhll": 2}
         self.assertEqual(result, expected)
 
+    def test_spicified_word(self):
+        word ='abs'
+        suggestions = {'ab'}
+        result = calculate_score(word, suggestions)
+        expected = {'ab': -2}
+        self.assertEqual(result, expected)
 class TestTop5(unittest.TestCase):
     def test_top_5_suggestions(self):
         user_word = "hell"

@@ -16,26 +16,27 @@ class AutoCompleteData:
 
 
 def get_best_k_completions(prefix: str) -> list[AutoCompleteData]:
+    """
+    This function runs the optimal autocomplete algorithm to find the best k completions.
 
-    levenshtein_index = 25
-    line_contents = DataManager.get_line_contents()
+    Levenshtein starts becoming faster at a word length of 36. We calculated this by timing both
+    algorithms (connect_and_score and Levenshtein) across all word lengths and averaging the results.
+    At word length 36, Levenshtein consistently outperforms the connect_and_score algorithm. This
+    improvement is significant enough to reduce overall running time.
+
+    Args:
+        prefix (str): The search word or prefix to find completions for.
+
+    Returns:
+        list[AutoCompleteData]: A list of the best 5 matching autocomplete suggestions.
+    """
+    levenshtein_index = 36
     word_mappings = DataManager.get_word_mappings()
 
-    start_time = time.perf_counter()
-    top_5_words = connect_and_score(str(prefix), word_mappings)
-    end_time = time.perf_counter()
-    connect_and_score_time = end_time - start_time
-
-    start_time = time.perf_counter()
-    suggestions = levenstein_implementation(str(prefix), word_mappings)
-    top_5_words = levenstein_top_5(str(prefix), suggestions)
-    end_time = time.perf_counter()
-    levenstein_time= end_time - start_time
-
-    with open("algorithm_performance_log.txt", "a") as f:
-        f.write(f"Word Length: {len(prefix)}\n")
-        f.write(f"num of words with this len Length: {len(word_mappings[len(prefix)])}\n")
-        f.write(f"connect_and_score: {connect_and_score_time} seconds\n")
-        f.write(f"levenstein: {levenstein_time} seconds\n\n")
+    if len(prefix) < levenshtein_index:
+        top_5_words = connect_and_score(str(prefix), word_mappings)
+    else:
+        suggestions = levenstein_implementation(str(prefix), word_mappings)
+        top_5_words = levenstein_top_5(str(prefix), suggestions)
 
     return top_5_words

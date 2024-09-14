@@ -1,9 +1,7 @@
-# file: main.py
-
 import logging
 import time
 from data_extractor import process_files
-from integration import get_best_5_completions  # Using your function
+from integration import get_best_5_completions, AutoCompleteData # Using your function
 from data_manger import DataManager
 from sentence_address_finder import find_sentence_in_common_addresses
 
@@ -16,6 +14,7 @@ logging.basicConfig(
 )
 
 def main():
+    print("Loading the files and preparing the system...\n")
     root_directory = "data/Archive"
 
     start_time = time.perf_counter()
@@ -41,6 +40,9 @@ def main():
 
     # Initialize empty sentence input
     sentence = ''
+    final_matching_lines = []
+    print("The system is ready. Enter your text:\n")
+    
     while True:
         try:
             # Get user input, handle real-time corrections
@@ -50,45 +52,40 @@ def main():
             if '#' in new_input:
                 sentence = ''
                 logging.info("Input reset detected.")
+                final_matching_lines = []  # Reset matching lines as well
             else:
-                # Split new input into words
-                new_words = new_input.strip().split()
+                sentence += new_input
+                # Add the new input to the sentence
+                sentence = ' '.join([sentence.strip()]).strip()
 
-                # Check each word and correct only if needed using get_best_5_completions
-                corrected_words = []
-                for word in new_words:
-                    # Get the best completions (corrections) for the word
-                    top_completions = get_best_5_completions(word)
-                    
-                    if top_completions:
-                        if word in DataManager.get_word_mappings().get(len(word), {}):
-                            # Word is correct, append it as is
-                            corrected_words.append(word)
-                        else:
-                            # Try up to 5 suggestions from get_best_5_completions
-                            for suggestion in top_completions[:5]:
-                                corrected_word = suggestion.complete_sentence
-                                corrected_words.append(corrected_word)
+                # Split the full sentence into words
+                words = sentence.strip().split()
 
-                                # Form the corrected sentence and check for matching lines
-                                temp_sentence = ' '.join(corrected_words) + ' '
-                                matching_lines = find_sentence_in_common_addresses(temp_sentence.strip())
+                # Correct the full sentence using get_best_5_completions
+                processed_words = []
+                for word in words:
+                    if word not in  DataManager.get_word_mappings()[len(word)]:
+                        top_completions = get_best_5_completions(word)
+                        processed_words.append(top_completions[0].complete_sentence)
+                        # will add code here!
 
-                                if matching_lines:
-                                    # If matches are found, log them and break out of the suggestion loop
-                                    for line in matching_lines:
-                                        logging.info(f"Found in line: {line}")
-                                    break
-                                
-                                # If no matches, remove the last incorrect suggestion and try the next one
-                                corrected_words.pop()
                     else:
-                        # No suggestion, keep the original word
-                        corrected_words.append(word)
+                        processed_words.append(word)
+                    
+                # Update the full sentence with corrected words
+                corrected_sentence = ' '.join(processed_words)
 
-                # Update the sentence with corrected words
-                sentence += ' '.join(corrected_words) + ' '
-            print(find_sentence_in_common_addresses(sentence))
+                # Now, search for the full corrected sentence in the dataset
+                final_matching_lines = find_sentence_in_common_addresses(corrected_sentence)
+
+                # Display the results
+                print("Here are 5 suggestions:\n")
+                if final_matching_lines:
+                    for i, line in enumerate(final_matching_lines[:5], start=1):
+                        print(f"{i}. {line}")
+                else:
+                    print("No matches found.")
+
         except KeyboardInterrupt:
             # Gracefully exit on Ctrl+C
             logging.info("Exiting program via keyboard interrupt.")

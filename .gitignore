@@ -1,2 +1,4 @@
 data
 src/main.py
+src/*.txt
+src/average.py

@@ -28,10 +28,9 @@ def calculate_score(user_word, suggestions):
     penalties = {"Replacing": [-5, -4, -3, -2, -1],
                  "Add_remove": [-10, -8, -6, -4, -2]}
 
-    # change to max heap
     scoring_dict = {suggestion: 0 for suggestion in suggestions}
 
-    user_word_letters_location = {} # {h: {0}, e: {1}, l: {2, 3}}
+    user_word_letters_location = {}
 
     for i,ch in enumerate(user_word):
         if ch in user_word_letters_location:
@@ -40,7 +39,7 @@ def calculate_score(user_word, suggestions):
             user_word_letters_location[ch] = {i}
 
     for suggestion in suggestions:
-        suggestion_letters_locations = {} # {h:{0,4},e:{1},l:{2,3}}
+        suggestion_letters_locations = {}
         for i, ch in enumerate(suggestion):
             if ch in suggestion_letters_locations:
                 suggestion_letters_locations[ch].add(i)
@@ -62,10 +61,14 @@ def calculate_score(user_word, suggestions):
         suggestion_side_letters = suggestion_letters_locations.keys() - user_word_letters_location.keys()
         for ch in user_side_letters:
             diff_indexes = list(user_word_letters_location[ch])[0]
-            if ch != suggestion[diff_indexes]:
-                scoring_dict[suggestion] += penalties["Replacing"][min(diff_indexes, 4)]
-                if suggestion[diff_indexes] in suggestion_side_letters:
-                    suggestion_side_letters.remove(suggestion[diff_indexes])
+            if diff_indexes < len(suggestion):
+                if ch != suggestion[diff_indexes]:
+                    scoring_dict[suggestion] += penalties["Replacing"][min(diff_indexes, 4)]
+                    if suggestion[diff_indexes] in suggestion_side_letters:
+                        suggestion_side_letters.remove(suggestion[diff_indexes])
+            else:
+                scoring_dict[suggestion] += penalties["Add_remove"][min(diff_indexes, 4)]
+
 
 
         for ch in suggestion_side_letters:
@@ -79,6 +82,6 @@ def calculate_score(user_word, suggestions):
 
     return scoring_dict
 
-def top_5(user_word, suggestions):
+def levenstein_top_5(user_word, suggestions):
     scoring_dict = calculate_score(user_word, suggestions)
     return dict(sorted(scoring_dict.items(), key=lambda item: item[1], reverse=True)[:5])

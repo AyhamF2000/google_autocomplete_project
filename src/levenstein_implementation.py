@@ -1,6 +1,6 @@
 import Levenshtein
 
-def correct_word(input_word, word_mappings):
+def levenstein_implementation(input_word, word_mappings):
     """
     Corrects the given input word by suggesting words from the word_mappings dictionary
     that are within a Levenshtein distance of 1 and have a similar length.
